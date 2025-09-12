@@ -49,6 +49,9 @@ dev = [
   "types-simplejson>=3.19.0.20241221",
   "poethepoet>=0.30.0",
 ]
+docker-tests = [
+    "docker>=7.1.0",
+]
 
 # uv doens't allow dependency groups to have separate python requirements
 # it resolves everything all at once
