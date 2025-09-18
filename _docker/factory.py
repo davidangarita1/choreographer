@@ -90,13 +90,9 @@ def _build(image_tag: str, df_name: str):
 
 
 def _run(image_tag: str):
-    cmd = (
-        'set -x; CHROME_PATH="$(uv run choreo_get_chrome)" && '
-        "($CHROME_PATH --version || ldd $CHROME_PATH)"
-    )
     output = client.containers.run(
         image_tag,
-        command=["sh", "-lc", cmd],
+        command=["uv", "run", "_docker/validate.py"],
         name="choreo_base",
         tty=True,
         remove=True,
