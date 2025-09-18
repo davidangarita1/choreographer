@@ -84,6 +84,23 @@ def _build(image_tag: str, df_name: str):
     print(f"[{image_tag}] \033[94m{size:.1f} MB\033[0m | \033[93m{secs:.1f}s\033[0m")
 
 
+def _run(image_tag: str):
+    output = client.containers.run(
+        image_tag,
+        command=[
+            "sh",
+            "-lc",
+            'set -x; CHROME_PATH="$(uv run choreo_get_chrome)" && ldd $CHROME_PATH',
+        ],
+        name="choreo_base",
+        tty=True,
+        remove=True,
+        stdout=True,
+        stderr=True,
+    )
+    print(output.decode(errors="ignore"))
+
+
 for cfg in cfg_list:
     name = cfg["name"]
     os_name = cfg["os_name"]
@@ -93,6 +110,7 @@ for cfg in cfg_list:
     try:
         _generate_file(df_name, os_name, commands)
         _build(name, df_name)
+        _run(name)
     except ImageNotFound:
         pathlib.Path(df_name).unlink(missing_ok=True)
     finally:
