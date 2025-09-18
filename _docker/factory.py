@@ -68,6 +68,7 @@ RUN uv sync --locked
 {"\n".join(f"RUN {cmd}" for cmd in commands) if commands else ""}
 """
     pathlib.Path(df_name).write_text(content)
+    print(f"Dockerfile '{df_name}' has been successfully generated.")
 
 
 def _build(image_tag: str, df_name: str):
@@ -85,13 +86,13 @@ def _build(image_tag: str, df_name: str):
 
 
 def _run(image_tag: str):
+    cmd = (
+        'set -x; CHROME_PATH="$(uv run choreo_get_chrome)" && '
+        "($CHROME_PATH --version || ldd $CHROME_PATH)"
+    )
     output = client.containers.run(
         image_tag,
-        command=[
-            "sh",
-            "-lc",
-            'set -x; CHROME_PATH="$(uv run choreo_get_chrome)" && ldd $CHROME_PATH',
-        ],
+        command=["sh", "-lc", cmd],
         name="choreo_base",
         tty=True,
         remove=True,
