@@ -37,10 +37,25 @@ async def download_browser() -> str:
     return out.decode().strip()
 
 
+async def get_browser_version(path: str) -> str:
+    try:
+        out, err, _ = await run([path, "--version"], verbose=True)
+        if err:
+            return ""
+        return out.decode()
+    except FileNotFoundError as e:
+        print(f"Message: {e}")
+        return ""
+
+
 async def main() -> None:
     try:
         chrome_path = await download_browser()
         if not chrome_path:
+            return
+
+        chrome_ver = await get_browser_version(chrome_path)
+        if not chrome_ver:
             return
     except (PermissionError, Exception) as e:
         print(f"ERROR: {e}")
