@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import pathlib
 import sys
 from typing import TypedDict
 
@@ -46,3 +47,32 @@ cfg_list: list[DockerConfig] = [
     {"name": "ubuntu_20", "os_name": "ubuntu:20.04", "commands": [cmd_certif]},
     {"name": "fedora_latest", "os_name": "fedora:latest", "commands": []},
 ]
+
+
+def _generate_file(df_name: str, os_name: str, commands: list[str]) -> None:
+    has_py = pathlib.Path("pyproject.toml").exists()
+    has_lock = pathlib.Path("uv.lock").exists()
+    deps = []
+    if has_py:
+        deps.append("COPY pyproject.toml /app/pyproject.toml")
+    if has_lock:
+        deps.append("COPY uv.lock /app/uv.lock")
+    content = f"""FROM {os_name}
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+WORKDIR /app
+{"\n".join(deps) if deps else ""}
+ENV UV_LINK_MODE=copy
+ADD . /app
+RUN uv sync --locked
+{"\n".join(f"RUN {cmd}" for cmd in commands) if commands else ""}
+"""
+    pathlib.Path(df_name).write_text(content)
+
+
+for cfg in cfg_list:
+    name = cfg["name"]
+    os_name = cfg["os_name"]
+    commands = cfg["commands"]
+    df_name = f"Dockerfile.{name}"
+
+    _generate_file(df_name, os_name, commands)
