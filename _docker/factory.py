@@ -117,17 +117,17 @@ def _clean(
 
 
 for cfg in cfg_list:
-    name = cfg["name"]
+    image_tag = cfg["name"]
     os_name = cfg["os_name"]
     commands = cfg["commands"]
-    df_name = f"Dockerfile.{name}"
+    df_name = f"Dockerfile.{image_tag}"
 
     try:
         _generate_file(df_name, os_name, commands)
-        _build(name, df_name)
-        _run(name)
+        _build(image_tag, df_name)
+        _run(image_tag)
     except (ImageNotFound, BuildError, Exception) as e:
         print(f"ERROR: {e}")
-        _clean(os_name, name, df_name, remove_base=True)
+        _clean(os_name, image_tag, df_name, remove_base=True)
     finally:
-        _clean(os_name, name, df_name, remove_base=True)
+        _clean(os_name, image_tag, df_name, remove_base=True)
