@@ -48,6 +48,26 @@ async def get_browser_version(path: str) -> str:
         return ""
 
 
+async def ldd_browser(path: str) -> None:
+    try:
+        _, err, _ = await run(["which", "ldd"])
+        if err:
+            print(err.decode())
+            return
+        info, _, _ = await run(["ldd", path], verbose=True)
+        missing_libs = re.findall(
+            r"^\s*(lib[\w\-\.]+\.so(?:\.\d+)?) => not found$",
+            info.decode(),
+            re.MULTILINE,
+        )
+        if missing_libs:
+            print("Chrome failed to launch due to missing system dependencies. ")
+            for lib in missing_libs:
+                print(f"  - {lib}")
+    except (BaseException, Exception) as e:
+        print(f"ERROR: {e}")
+
+
 async def main() -> None:
     try:
         chrome_path = await download_browser()
@@ -56,7 +76,10 @@ async def main() -> None:
 
         chrome_ver = await get_browser_version(chrome_path)
         if not chrome_ver:
+            await ldd_browser(chrome_path)
             return
+
+        print(chrome_ver)
     except (PermissionError, Exception) as e:
         print(f"ERROR: {e}")
 
