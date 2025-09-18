@@ -7,7 +7,7 @@ import sys
 from typing import TypedDict
 
 import docker
-from docker.errors import DockerException
+from docker.errors import DockerException, ImageNotFound
 
 # ruff: noqa: T201 allow print in CLI
 
@@ -75,4 +75,9 @@ for cfg in cfg_list:
     commands = cfg["commands"]
     df_name = f"Dockerfile.{name}"
 
-    _generate_file(df_name, os_name, commands)
+    try:
+        _generate_file(df_name, os_name, commands)
+    except ImageNotFound:
+        pathlib.Path(df_name).unlink(missing_ok=True)
+    finally:
+        pathlib.Path(df_name).unlink(missing_ok=True)
