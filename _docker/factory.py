@@ -72,7 +72,7 @@ RUN uv sync --locked
 {"\n".join(f"RUN {cmd}" for cmd in commands) if commands else ""}
 """
     pathlib.Path(df_name).write_text(content)
-    print(f"Dockerfile '{df_name}' has been successfully generated.")
+    print(f"'{df_name}' has been successfully generated.")
 
 
 def _build(image_tag: str, df_name: str):
