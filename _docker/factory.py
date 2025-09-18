@@ -101,6 +101,13 @@ def _run(image_tag: str):
     print(output.decode(errors="ignore"))
 
 
+def _clean(os_name: str, image_tag: str, df_name: str):
+    client.images.remove(image=image_tag, force=True)
+    client.images.remove(image=os_name, force=True)
+    client.images.prune(filters={"dangling": True})
+    pathlib.Path(df_name).unlink(missing_ok=True)
+
+
 for cfg in cfg_list:
     name = cfg["name"]
     os_name = cfg["os_name"]
@@ -112,6 +119,6 @@ for cfg in cfg_list:
         _build(name, df_name)
         _run(name)
     except ImageNotFound:
-        pathlib.Path(df_name).unlink(missing_ok=True)
+        _clean(os_name, name, df_name)
     finally:
-        pathlib.Path(df_name).unlink(missing_ok=True)
+        _clean(os_name, name, df_name)
