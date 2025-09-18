@@ -46,7 +46,11 @@ cfg_list: list[DockerConfig] = [
     },
     {"name": "ubuntu_latest", "os_name": "ubuntu:latest", "commands": [cmd_certif]},
     {"name": "ubuntu_20", "os_name": "ubuntu:20.04", "commands": [cmd_certif]},
+    {"name": "ubuntu_22", "os_name": "ubuntu:22.04", "commands": [cmd_certif]},
     {"name": "fedora_latest", "os_name": "fedora:latest", "commands": []},
+    {"name": "alpine_latest", "os_name": "alpine:latest", "commands": []},
+    {"name": "alpine_3_18", "os_name": "alpine:3.18", "commands": []},
+    {"name": "alpine_3_17", "os_name": "alpine:3.17", "commands": []},
 ]
 
 
