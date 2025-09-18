@@ -8,7 +8,7 @@ import time
 from typing import TypedDict
 
 import docker
-from docker.errors import DockerException, ImageNotFound
+from docker.errors import BuildError, DockerException, ImageNotFound
 
 # ruff: noqa: T201 allow print in CLI
 
@@ -101,9 +101,16 @@ def _run(image_tag: str):
     print(output.decode(errors="ignore"))
 
 
-def _clean(os_name: str, image_tag: str, df_name: str):
+def _clean(
+    os_name: str,
+    image_tag: str,
+    df_name: str,
+    *,
+    remove_base: bool = False,
+):
     client.images.remove(image=image_tag, force=True)
-    client.images.remove(image=os_name, force=True)
+    if remove_base:
+        client.images.remove(image=os_name, force=True)
     client.images.prune(filters={"dangling": True})
     pathlib.Path(df_name).unlink(missing_ok=True)
 
@@ -118,7 +125,8 @@ for cfg in cfg_list:
         _generate_file(df_name, os_name, commands)
         _build(name, df_name)
         _run(name)
-    except ImageNotFound:
-        _clean(os_name, name, df_name)
+    except (ImageNotFound, BuildError, Exception) as e:
+        print(f"ERROR: {e}")
+        _clean(os_name, name, df_name, remove_base=True)
     finally:
-        _clean(os_name, name, df_name)
+        _clean(os_name, name, df_name, remove_base=True)
