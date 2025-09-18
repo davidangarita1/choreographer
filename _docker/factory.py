@@ -92,7 +92,7 @@ def _build(image_tag: str, df_name: str):
 def _run(image_tag: str):
     output = client.containers.run(
         image_tag,
-        command=["uv", "run", "_docker/validate.py"],
+        command=["uv", "run", "_docker/script.py"],
         name="choreo_base",
         tty=True,
         remove=True,
