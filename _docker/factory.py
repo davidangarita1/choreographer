@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pathlib
 import sys
+import time
 from typing import TypedDict
 
 import docker
@@ -69,6 +70,20 @@ RUN uv sync --locked
     pathlib.Path(df_name).write_text(content)
 
 
+def _build(image_tag: str, df_name: str):
+    start_time = time.time()
+    client.images.build(
+        path=".",
+        dockerfile=df_name,
+        tag=image_tag,
+        rm=True,
+        forcerm=True,
+    )
+    secs = time.time() - start_time
+    size = client.images.get(image_tag).attrs["Size"] / (1024 * 1024)
+    print(f"[{image_tag}] \033[94m{size:.1f} MB\033[0m | \033[93m{secs:.1f}s\033[0m")
+
+
 for cfg in cfg_list:
     name = cfg["name"]
     os_name = cfg["os_name"]
@@ -77,6 +92,7 @@ for cfg in cfg_list:
 
     try:
         _generate_file(df_name, os_name, commands)
+        _build(name, df_name)
     except ImageNotFound:
         pathlib.Path(df_name).unlink(missing_ok=True)
     finally:
