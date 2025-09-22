@@ -49,9 +49,18 @@ async def run(
         return (*(await p.communicate()), p.returncode)
 
 
+def get_os_libc() -> str:
+    name, _ = platform.libc_ver()
+    if name == "glibc":
+        return name
+    elif name in ("libc", "musl"):
+        return "musl"
+    else:
+        return name
+
+
 def get_libc_info(chrome_path: str) -> str:
-    out = platform.libc_ver()
-    os_libc = "glibc" if "glibc" in out else "musl"
+    os_libc = get_os_libc()
     path = pathlib.Path(chrome_path)
     f = path.open("rb")
     elffile = ELFFile(f)
