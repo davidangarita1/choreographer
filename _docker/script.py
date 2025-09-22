@@ -56,19 +56,30 @@ def get_os_libc() -> str:
     elif name in ("libc", "musl"):
         return "musl"
     else:
-        return name
+        return ""
+
+
+def get_file_libc(file_path: str) -> str:
+    path = pathlib.Path(file_path)
+    f = path.open("rb")
+    elffile = ELFFile(f)
+    interp = ""
+    for s in elffile.iter_segments():
+        if s.header.p_type == "PT_INTERP":
+            interp = s.data().decode().strip()
+            break
+
+    if "ld-musl" in interp:
+        return "musl"
+    elif "ld-linux" in interp:
+        return "glibc"
+    else:
+        return ""
 
 
 def get_libc_info(chrome_path: str) -> str:
     os_libc = get_os_libc()
-    path = pathlib.Path(chrome_path)
-    f = path.open("rb")
-    elffile = ELFFile(f)
-    chrome_libc = ""
-    for s in elffile.iter_segments():
-        if s.header.p_type == "PT_INTERP":
-            chrome_libc = "glibc" if "ld-linux" in s.data().decode() else "musl"
-            break
+    chrome_libc = get_file_libc(chrome_path)
     if os_libc == chrome_libc:
         return os_libc
     else:
