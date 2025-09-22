@@ -6,18 +6,39 @@
 from __future__ import annotations
 
 import asyncio
+import pathlib
+import platform
 import re
 import subprocess
 import sys
 
+from elftools.elf.elffile import ELFFile
+
 # ruff: noqa: T201 allow print in CLI
+
+
+class IncompatibleLibrariesError(OSError):
+    pass
+
+
+class DependencyNotFoundError(FileNotFoundError):
+    def __init__(
+        self,
+        dependencies: list[str],
+    ) -> None:
+        super().__init__()
+
+        self.dependencies = dependencies
+
+    def __str__(self):
+        return f"\n{'\n'.join(f'{dep}' for dep in self.dependencies)}"
 
 
 async def run(
     commands: list[str], *, verbose: bool = False
 ) -> tuple[bytes, bytes, int | None]:
     if verbose:
-        print(f"- {' '.join(commands)}")
+        print(f"{' '.join(commands)}")
     try:
         p = await asyncio.create_subprocess_exec(
             *commands, stdout=subprocess.PIPE, stderr=subprocess.PIPE
@@ -26,6 +47,26 @@ async def run(
         return e.stdout, e.stderr, e.returncode
     else:
         return (*(await p.communicate()), p.returncode)
+
+
+def get_libc_info(chrome_path: str) -> str:
+    out = platform.libc_ver()
+    os_libc = "glibc" if "glibc" in out else "musl"
+    path = pathlib.Path(chrome_path)
+    f = path.open("rb")
+    elffile = ELFFile(f)
+    chrome_libc = ""
+    for s in elffile.iter_segments():
+        if s.header.p_type == "PT_INTERP":
+            chrome_libc = "glibc" if "ld-linux" in s.data().decode() else "musl"
+            break
+    if os_libc == chrome_libc:
+        return os_libc
+    else:
+        raise IncompatibleLibrariesError(
+            f"Libc mismatch: system uses '{os_libc}', "
+            f"Chrome binary uses '{chrome_libc}'."
+        )
 
 
 async def download_browser() -> str:
@@ -54,23 +95,17 @@ async def get_browser_version(path: str) -> str:
 
 
 async def ldd_browser(path: str) -> None:
-    try:
-        _, err, _ = await run(["which", "ldd"])
-        if err:
-            print(err.decode())
-            return
-        info, _, _ = await run(["ldd", path], verbose=True)
-        missing_libs = re.findall(
-            r"^\s*(lib[\w\-\.]+\.so(?:\.\d+)?) => not found$",
-            info.decode(),
-            re.MULTILINE,
-        )
-        if missing_libs:
-            print("Chrome failed to launch due to missing system dependencies. ")
-            for lib in missing_libs:
-                print(f"  - {lib}")
-    except (BaseException, Exception) as e:
-        print(f"ERROR: {e}")
+    _, err, _ = await run(["ldd", "--version"])
+    if err:
+        print(err.decode())
+        return
+    info, _, _ = await run(["ldd", path], verbose=True)
+    if missing_libs := re.findall(
+        r"^\s*(lib[\w\-\.]+\.so(?:\.\d+)?) => not found$",
+        info.decode(),
+        re.MULTILINE,
+    ):
+        raise DependencyNotFoundError(missing_libs)
 
 
 async def main() -> None:
@@ -78,15 +113,22 @@ async def main() -> None:
         chrome_path = await download_browser()
         if not chrome_path:
             return
+        libc = get_libc_info(chrome_path)
+        if libc:
+            await ldd_browser(chrome_path)
 
         chrome_ver = await get_browser_version(chrome_path)
         if not chrome_ver:
-            await ldd_browser(chrome_path)
             return
 
         print(chrome_ver)
-    except (PermissionError, Exception) as e:
-        print(f"ERROR: {e}")
+    except (
+        PermissionError,
+        DependencyNotFoundError,
+        IncompatibleLibrariesError,
+        Exception,
+    ) as e:
+        print(f"{type(e).__name__}:\n{e}")
 
 
 asyncio.run(main())
