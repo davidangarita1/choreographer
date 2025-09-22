@@ -1,3 +1,8 @@
+# /// script
+# requires-python = ">=3.8"
+# dependencies = ["pyelftools"]
+# ///
+
 from __future__ import annotations
 
 import asyncio
