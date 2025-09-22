@@ -56,6 +56,7 @@ def get_os_libc() -> str:
     elif name in ("libc", "musl"):
         return "musl"
     else:
+        # Por ahora solo soportamos glibc o musl
         return ""
 
 
@@ -74,6 +75,7 @@ def get_file_libc(file_path: str) -> str:
     elif "ld-linux" in interp:
         return "glibc"
     else:
+        # Por ahora solo soportamos glibc o musl
         return ""
 
 
