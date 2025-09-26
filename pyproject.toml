@@ -50,7 +50,7 @@ dev = [
   "poethepoet>=0.30.0",
 ]
 docker-tests = [
-    "container-tester @ git+https://github.com/geopozo/container-tester",
+  "container-tester @ git+https://github.com/geopozo/container-tester",
 ]
 
 # uv doens't allow dependency groups to have separate python requirements
