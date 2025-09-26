@@ -201,7 +201,7 @@ wheels = [
 [[package]]
 name = "container-tester"
 version = "0.0.1"
-source = { git = "https://github.com/geopozo/container-tester#e15b67655caede63eb12e99f5951b50186d52214" }
+source = { git = "https://github.com/geopozo/container-tester#93633943bcc5566fc8ecca206610a6bdde30b461" }
 dependencies = [
     { name = "click", version = "8.1.8", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "click", version = "8.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
