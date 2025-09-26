@@ -56,8 +56,7 @@ def get_os_libc() -> str:
     elif name in ("libc", "musl"):
         return "musl"
     else:
-        # Por ahora solo soportamos glibc o musl
-        return ""
+        return name
 
 
 def get_file_libc(file_path: str) -> str:
@@ -75,8 +74,7 @@ def get_file_libc(file_path: str) -> str:
     elif "ld-linux" in interp:
         return "glibc"
     else:
-        # Por ahora solo soportamos glibc o musl
-        return ""
+        return interp
 
 
 def get_libc_info(chrome_path: str) -> str:
@@ -135,7 +133,9 @@ async def main() -> None:
         chrome_path = await download_browser()
         if not chrome_path:
             return
+
         libc = get_libc_info(chrome_path)
+
         if libc:
             await ldd_browser(chrome_path)
 
