@@ -31,7 +31,7 @@ class DependencyNotFoundError(FileNotFoundError):
         self.dependencies = dependencies
 
     def __str__(self):
-        return f"\n{'\n'.join(f'{dep}' for dep in self.dependencies)}"
+        return "\n".join(f"{dep}" for dep in self.dependencies)
 
 
 async def run(
