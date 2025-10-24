@@ -25,4 +25,5 @@ node_modules/
 *.tar.gz
 *.whl
 
+uv.lock
 choreographer/cli/browser_exe/
