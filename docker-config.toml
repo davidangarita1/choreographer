@@ -1,11 +1,11 @@
 [py312_trixie]
 command = "uv run _docker/script.py"
 os_name = "python:3.12-slim-trixie"
-os_commands = []
+os_commands = ["apt-get update && apt-get install -y git"]
 pkg_manager = "apt"
 
 [ubuntu_latest]
 command = "uv run _docker/script.py"
 os_name = "ubuntu:latest"
-os_commands = ["apt-get update && apt-get install -y ca-certificates"]
+os_commands = ["apt-get update && apt-get install -y ca-certificates git"]
 pkg_manager = "apt"
