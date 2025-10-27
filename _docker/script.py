@@ -91,7 +91,7 @@ def get_libc_info(chrome_path: str) -> str:
 
 async def download_browser() -> str:
     out, err, _ = await run(
-        ["uv", "run", "choreo_get_chrome"],
+        ["uv", "run", "--python", "3.11", "choreo_get_chrome"],
         verbose=True,
     )
     certif_reg = re.compile("certificate verify failed")
