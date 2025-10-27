@@ -3,7 +3,7 @@ requires = ["setuptools>=65.0.0", "wheel", "setuptools-git-versioning"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages]
-find = {namespaces = true}
+find = { namespaces = true }
 
 [tool.setuptools-git-versioning]
 enabled = true
@@ -19,16 +19,11 @@ license.file = "LICENSE"
 requires-python = ">=3.8"
 dynamic = ["version"]
 authors = [
-  {name = "Andrew Pikul", email="ajpikul@gmail.com"},
-  {name = "Neyberson Atencio", email="neyberatencio@gmail.com"}
-  ]
-maintainers = [
-  {name = "Andrew Pikul", email = "ajpikul@gmail.com"},
+  { name = "Andrew Pikul", email = "ajpikul@gmail.com" },
+  { name = "Neyberson Atencio", email = "neyberatencio@gmail.com" },
 ]
-dependencies = [
-  "logistro>=1.0.11",
-  "simplejson>=3.19.3",
-]
+maintainers = [{ name = "Andrew Pikul", email = "ajpikul@gmail.com" }]
+dependencies = ["logistro>=1.0.11", "simplejson>=3.19.3"]
 
 [project.urls]
 Homepage = "https://github.com/plotly/choreographer"
@@ -49,9 +44,7 @@ dev = [
   "types-simplejson>=3.19.0.20241221",
   "poethepoet>=0.30.0",
 ]
-docker-tests = [
-  "container-tester; python_version >= '3.11'",
-]
+docker-tests = ["container-tester; python_version >= '3.11'"]
 
 # uv doens't allow dependency groups to have separate python requirements
 # it resolves everything all at once
@@ -65,39 +58,39 @@ docker-tests = [
 #]
 
 [tool.uv.sources]
-container-tester = { path = "../container-tester", editable=true }
+container-tester = { git = "https://github.com/geopozo/container-tester", branch = "david/refactor-architecture" }
 #mkquixote = { path = "../mkquixote", editable = true }
 #logistro = { path = "../logistro", editable = true }
 
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-          "ANN", # no types
-          "EM", # allow strings in raise(), despite python being ugly about it
-          "TRY003", # allow long error messages inside raise()
-          "D203", # No blank before class docstring (D211 = require blank line)
-          "D212", # Commit message style docstring is D213, ignore D212
-          "COM812", # manual says linter rule conflicts with formatter
-          "ISC001", # manual says litner rule conflicts with formatter
-          "RET504", # Allow else if unnecessary because more readable
-          "RET505", # Allow else if unnecessary because more readable
-          "RET506", # Allow else if unnecessary because more readable
-          "RET507", # Allow else if unnecessary because more readable
-          "RET508", # Allow else if unnecessary because more readable
-          "RUF012", # We don't do typing, so no typing
-          "SIM105", # Too opionated (try-except-pass)
-          "PT003", # scope="function" implied but I like readability
-          "G004", # fstrings in my logs
-          ]
+  "ANN",    # no types
+  "EM",     # allow strings in raise(), despite python being ugly about it
+  "TRY003", # allow long error messages inside raise()
+  "D203",   # No blank before class docstring (D211 = require blank line)
+  "D212",   # Commit message style docstring is D213, ignore D212
+  "COM812", # manual says linter rule conflicts with formatter
+  "ISC001", # manual says litner rule conflicts with formatter
+  "RET504", # Allow else if unnecessary because more readable
+  "RET505", # Allow else if unnecessary because more readable
+  "RET506", # Allow else if unnecessary because more readable
+  "RET507", # Allow else if unnecessary because more readable
+  "RET508", # Allow else if unnecessary because more readable
+  "RUF012", # We don't do typing, so no typing
+  "SIM105", # Too opionated (try-except-pass)
+  "PT003",  # scope="function" implied but I like readability
+  "G004",   # fstrings in my logs
+]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = [
-              "D", # ignore docstring errors
-              "S101", # allow assert
-              "INP001", # no need for __init__ in test directories
-              "T201", # if we're printing in tests, there is a reason
-              "ERA001"
-            ]
+  "D",      # ignore docstring errors
+  "S101",   # allow assert
+  "INP001", # no need for __init__ in test directories
+  "T201",   # if we're printing in tests, there is a reason
+  "ERA001",
+]
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"
