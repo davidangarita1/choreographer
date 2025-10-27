@@ -50,7 +50,7 @@ dev = [
   "poethepoet>=0.30.0",
 ]
 docker-tests = [
-  "container-tester @ git+https://github.com/geopozo/container-tester",
+  "container-tester; python_version >= '3.11'",
 ]
 
 # uv doens't allow dependency groups to have separate python requirements
@@ -65,6 +65,7 @@ docker-tests = [
 #]
 
 [tool.uv.sources]
+container-tester = { path = "../container-tester", editable=true }
 #mkquixote = { path = "../mkquixote", editable = true }
 #logistro = { path = "../logistro", editable = true }
 
